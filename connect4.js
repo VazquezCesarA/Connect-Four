@@ -7,14 +7,7 @@
 
 const WIDTH = 7;
 const HEIGHT = 6;
-const board = [
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null],
-];
+const board = makeBoard();
 let currPlayer = 1; // active player: 1 or 2
 
 //TODO: add game sense, add a check "for is the entire board filled"
@@ -26,7 +19,12 @@ let currPlayer = 1; // active player: 1 or 2
  */
 
 function makeBoard() {
-  // TODO set "board" to empty HEIGHT x WIDTH matrix array
+  let x = new Array(HEIGHT);
+
+  for (let i = 0; i < x.length; i++) {
+    x[i] = new Array(WIDTH);
+  }
+  return x;
 }
 
 /** makeHtmlBoard: make HTML table and row of column tops. */
@@ -58,34 +56,58 @@ function makeHtmlBoard() {
   }
 }
 
+
 /** findSpotForCol: given column x, return top empty y (null if filled) */
 function findSpotForCol(x) {
-  // TODO: write the real version of this, rather than always returning 0
-  return 0;
+  x = parseInt(x);
+  for (let i = HEIGHT -1; i >= 0; i--) {
+    if(board[i][x] === undefined){
+      return i;
+    } 
+  }
+  return null;
 }
-
+//after, check if someone won
 function placeInTable(y, x) {
-  const htmlBoard = document.querySelector("#board");
+  const topColumn = document.getElementById("column-top");
 
-  htmlBoard.addEventListener("click", (e) => {
-    e.target.innerHTML = '<div class = "piece"></div>';
-    currPlayer = currPlayer === 1 ? 2 : 1;
+  topColumn.addEventListener("click", (e) => {
+    console.log(e.target.id);
 
-    if (currPlayer == 1) {
-      document.querySelector('div [class = "piece"]').classList.add("p2");
+    let tdPiece = document.getElementById(
+      `${findSpotForCol(e.target.id)}-${e.target.id}`
+    );
+
+    tdPiece.innerHTML = '<div class = "piece"></div>';
+
+    let divPiece = tdPiece.firstElementChild;
+
+    console.log(divPiece);
+
+    console.log(board);
+
+    board[findSpotForCol(e.target.id)][e.target.id] = currPlayer;
+
+    // console.log(tdPiece.classList.add('piece'));
+
+    // console.log(findSpotForCol(e.target.id));
+
+    if (currPlayer === 1) {
+      divPiece.classList.add("p1");
+      console.log(currPlayer, e.target);
+      //try toggle
+      currPlayer = 2;
     } else {
-      document.querySelector('div [class = "piece"]').classList.add("p1");
+      divPiece.classList.add("p2");
+      console.log(currPlayer, e.target);
+      currPlayer = 1;
     }
-
-    console.log(e.target);
-    console.log(currPlayer);
   });
   //1. (done: create a div)
   //2. (done: add the event to the parent element)
   //3. (done: add the div inside the correct td using the addevent (when you click a td element add a div inside))
   //4. (done: add the class "piece" in the div)
 }
-placeInTable("y", "x");
 
 /** endGame: announce game end */
 
@@ -107,7 +129,6 @@ function handleClick(evt) {
 
   // place piece in board and add to HTML table
   // TODO: add line to update in-memory board
-  placeInTable(y, x);
 
   // check for win
   if (checkForWin()) {
@@ -178,3 +199,4 @@ function checkForWin() {
 
 makeBoard();
 makeHtmlBoard();
+placeInTable("y", "x");
