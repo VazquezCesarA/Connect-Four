@@ -10,8 +10,6 @@ const HEIGHT = 6;
 const board = makeBoard();
 let currPlayer = 1; // active player: 1 or 2
 
-//TODO: add game sense, add a check "for is the entire board filled"
-
 // array of rows, each row is array of cells  (board[y][x])
 
 /** makeBoard: create in-JS board structure:
@@ -56,63 +54,32 @@ function makeHtmlBoard() {
   }
 }
 
-
 /** findSpotForCol: given column x, return top empty y (null if filled) */
 function findSpotForCol(x) {
   x = parseInt(x);
-  for (let i = HEIGHT -1; i >= 0; i--) {
-    if(board[i][x] === undefined){
+  for (let i = HEIGHT - 1; i >= 0; i--) {
+    if (board[i][x] === undefined) {
       return i;
-    } 
+    }
   }
   return null;
 }
+
 //after, check if someone won
 function placeInTable(y, x) {
-  const topColumn = document.getElementById("column-top");
+  let tdPiece = document.getElementById(`${x}-${y}`);
 
-  topColumn.addEventListener("click", (e) => {
-    console.log(e.target.id);
+  tdPiece.innerHTML = '<div class = "piece"></div>';
 
-    let tdPiece = document.getElementById(
-      `${findSpotForCol(e.target.id)}-${e.target.id}`
-    );
+  let divPiece = tdPiece.firstElementChild;
 
-    tdPiece.innerHTML = '<div class = "piece"></div>';
-
-    let divPiece = tdPiece.firstElementChild;
-
-    console.log(divPiece);
-
-    console.log(board);
-
-    board[findSpotForCol(e.target.id)][e.target.id] = currPlayer;
-
-    // console.log(tdPiece.classList.add('piece'));
-
-    // console.log(findSpotForCol(e.target.id));
-
-    if (currPlayer === 1) {
-      divPiece.classList.add("p1");
-      console.log(currPlayer, e.target);
-      //try toggle
-      currPlayer = 2;
-    } else {
-      divPiece.classList.add("p2");
-      console.log(currPlayer, e.target);
-      currPlayer = 1;
-    }
-  });
-  //1. (done: create a div)
-  //2. (done: add the event to the parent element)
-  //3. (done: add the div inside the correct td using the addevent (when you click a td element add a div inside))
-  //4. (done: add the class "piece" in the div)
+  divPiece.classList.add(`p${currPlayer}`);
 }
 
 /** endGame: announce game end */
 
 function endGame(msg) {
-  // TODO: pop up alert message
+  alert(msg);
 }
 
 /** handleClick: handle click of column top to play piece */
@@ -126,20 +93,32 @@ function handleClick(evt) {
   if (y === null) {
     return;
   }
-
+  placeInTable(x, y);
   // place piece in board and add to HTML table
-  // TODO: add line to update in-memory board
+
+  board[y][x] = currPlayer;
 
   // check for win
   if (checkForWin()) {
     return endGame(`Player ${currPlayer} won!`);
   }
 
-  // check for tie
-  // TODO: check if all cells in board are filled; if so call, call endGame
+  if (checkForTie()) {
+    return endGame("Filled up. Its a tie!");
+  }
 
-  // switch players
-  // TODO: switch currPlayer 1 <-> 2
+  // check for tie
+
+  const playerSwitch = () => {
+    currPlayer = currPlayer === 1 ? 2 : 1;
+  };
+  playerSwitch();
+}
+
+function checkForTie() {
+  for (let i = 0; i < HEIGHT; i++)
+    for (let j = 0; j < WIDTH; j++) if (board[i][j] === undefined) return false;
+  return true;
 }
 
 /** checkForWin: check board cell-by-cell for "does a win start here?" */
@@ -162,6 +141,7 @@ function checkForWin() {
 
   // TODO: read and understand this code. Add comments to help you.
 
+  //Coords for horiz, vert, diagDR, and diagDL in the board
   for (let y = 0; y < HEIGHT; y++) {
     for (let x = 0; x < WIDTH; x++) {
       let horiz = [
@@ -199,4 +179,3 @@ function checkForWin() {
 
 makeBoard();
 makeHtmlBoard();
-placeInTable("y", "x");
